@@ -1,0 +1,85 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<configuration>
+    <!-- this one is standard  -->
+
+    <!--- step 2-->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd' 'HH:mm:ss.SSS}] [%25.25class] [%thread] [%line] [%-5level] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>/tmp/var/mylog.log</File><!--sending log to this file -->
+        <append>true</append>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd' 'HH:mm:ss.SSS}] [%C] [%t] [%L] [%-5p] %m%n</pattern>
+            <!--this is the pattern it will appear like -->
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+
+            <!-- rollover daily  for every 10MB, new file will start for that day -->
+            <fileNamePattern>/tmp/var/mylog.%d{yyyy-MM-dd HH}.%i.txt</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!--TOMCAT TO LOG SEPARATE FROM REST OF SPRING WORK -->
+    <appender name="TOMCAT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>/tmp/var/myTomcatLog.log</File>
+        <append>true</append>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd' 'HH:mm:ss.sss}] [%C] [%t] [%L] [%-5p] %m%n</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+
+            <!-- rollover daily -->
+            <fileNamePattern>/tmp/var/myTomcatLog.%d{yyyy-MM-dd HH}.%i.txt</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+<!--STEP 1 -->
+    <root level="INFO" additivity="false"><!-- makes log only appear once-->
+        <appender-ref ref = "STDOUT" />
+        <appender-ref ref ="FILE" />
+    </root>
+
+    <!-- this package and all subpackages of .boot -->
+    <!--STEP 3-->
+    <logger name="org.springframework.boot" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <logger name="org.apache.catalina" level="INFO">
+        <appender-ref ref="TOMCAT" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="org.apache.coyote" level="INFO">
+        <appender-ref ref="TOMCAT" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="org.apache.tomcat" level="INFO">
+        <appender-ref ref="TOMCAT" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="com.lambdaschool" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+</configuration>
